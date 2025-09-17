@@ -1,6 +1,6 @@
 [submodule "catkin_devel/src/ros_biomech"]
 	path = catkin_devel/src/ros_biomech
-	url = https://github.com/opensimrt-ros/ros-biomech.git
+	url = git@github.com:fbkl/ros-biomech.git
 	branch = devel-all
 [submodule "Data/refdata"]
 	path = Data/refdata
@@ -14,5 +14,4 @@
 	pushurl = git@github.com:opensimrt-ros/opensim_docker.git
 [submodule "vim"]
 	path = vim
-	url = https://github.com/opensimrt-ros/vim.git
-	pushurl = git@github.com:opensimrt-ros/vim.git
+	url = git@github.com:fbkl/vim.git
