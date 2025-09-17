@@ -96,7 +96,7 @@ RUN /bin/ximu.bash
 
 ## dynamic reconfigure has problems with newer versions of pyyaml
 ## also need pupil and nest for eye_tracker
-RUN wget https://bootstrap.pypa.io/get-pip.py && python3 get-pip.py && python3 -m pip install --upgrade pynvim && \
+RUN wget https://bootstrap.pypa.io/pip/3.8/get-pip.py && python3 get-pip.py && python3 -m pip install --upgrade pynvim && \
 	pip3 install --upgrade pip && hash -r && pip3 install --upgrade pip && pip3 install protobuf==3.20.1 mock numpy pupil-labs-realtime-api nest_asyncio && \
 	pip3 install --ignore-installed PyYAML==5.3 
 
@@ -207,7 +207,7 @@ RUN useradd -l -u ${uid} -g ${gid} -G sudo,audio,video -s /bin/bash -m -p '$6$Ws
 RUN chown ${uid}:${gid} -R /catkin_opensim
 
 
-RUN echo "reinstall neovim"
+#RUN echo "reinstall neovim"
 ADD vim /nvim
 ADD scripts/vim_install.bash /nvim
 RUN /nvim/vim_install.bash
@@ -237,6 +237,11 @@ RUN printf "source /catkin_ws/devel/setup.bash\nsource /catkin_opensim/devel/set
 RUN rosdep update
 
 USER root
+
+RUN apt update && apt install clangd-18 clang-tidy-18 -y
+
+RUN     update-alternatives --install /usr/bin/clangd 		clangd 		/usr/bin/clangd-18 	10 && \
+	update-alternatives --install /usr/bin/clang-tidy 	clang-tidy 	/usr/bin/clang-tidy-18  10
 
 WORKDIR /catkin_ws
 

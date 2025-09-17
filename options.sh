@@ -133,7 +133,7 @@ EXTRA_OPTIONS="--ipc host "
 
 
 
-BRANCH_RAW=$(git branch --show-current )
+BRANCH_RAW=$(git rev-parse --abbrev-ref HEAD )
 
 ## sanitize branch name
 sanitize_tag() {
