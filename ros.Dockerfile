@@ -101,40 +101,41 @@ RUN wget https://bootstrap.pypa.io/pip/3.8/get-pip.py && python3 get-pip.py && p
 	pip3 install --ignore-installed PyYAML==5.3 
 
 
-WORKDIR /catkin_opensim/src
-
-
-ENV OPENSIMRTDIR=opensimrt_core
-
 #half way into removing those hardcoded paths. still hardcoded, but a bit better
-ADD cmake/Findsimbody.cmake /opt/dependencies
-ADD cmake/FindOpenSim.cmake /opt/dependencies
 
-RUN git clone https://github.com/opensimrt-ros/opensimrt_core.git ./$OPENSIMRTDIR -b feature/epoch-time-saving  && ln -s /srv/data $OPENSIMRTDIR/data && cd /catkin_opensim/src/$OPENSIMRTDIR && git checkout d5efbb262bf14b20facf292d9d9fb886f6ac7e3b && cd ..
-RUN sed 's@~@/opt@' ./$OPENSIMRTDIR/.github/workflows/env_variables >> /etc/profile.d/opensim_envs.sh
+#ADD cmake/Findsimbody.cmake /opt/dependencies
+#ADD cmake/FindOpenSim.cmake /opt/dependencies
+#&& cd /catkin_opensim/src/$OPENSIMRTDIR 
+#&& git checkout d5efbb262bf14b20facf292d9d9fb886f6ac7e3b && cd ..
+#RUN sed 's@~@/opt@' ./$OPENSIMRTDIR/.github/workflows/env_variables >> /etc/profile.d/opensim_envs.sh
+ADD scripts/realsense_install.bash /usr/sbin/
+RUN bash /usr/sbin/realsense_install.bash
 
+WORKDIR /catkin_opensim/src
 RUN git clone https://github.com/opensimrt-ros/opensimrt_msgs.git -b devel && cd opensimrt_msgs && git checkout 182dd0a73a3d8a822c8112eab03879490edee09a && cd ..
 #RUN echo "I use this to make it get stuff from git again"
 
-RUN git clone https://github.com/opensimrt-ros/opensimrt_bridge.git -b devel && cd opensimrt_bridge && git checkout 96d388fdfcc538e7be30bb8680fec316b4b594bf && cd ..
+WORKDIR /catkin_opensim/src
+RUN git clone https://github.com/fbkl/opensimrt_bridge.git -b feature/no_simtk_namespacing && echo "." 
+#devel && cd opensimrt_bridge && git checkout 96d388fdfcc538e7be30bb8680fec316b4b594bf && cd ..
 
 ENV PYTHONPATH=/opt/ros/noetic/lib/python3/dist-packages/:$PYTHONPATH
 
 #I dont think this variable is set yet
-ENV OPENSIM_PYTHON_DIR=/usr/local/lib/python3.8/site-packages
-WORKDIR ${OPENSIM_PYTHON_DIR}
-RUN python3.8 setup.py install
-WORKDIR /usr/lib/x86_64-linux-gnu
-RUN ln -s libpython3.8.so.1.0 libpython3.6m.so.1.0
+#ENV OPENSIM_PYTHON_DIR=/usr/local/lib/python3.8/site-packages
+#WORKDIR ${OPENSIM_PYTHON_DIR}
+#RUN python3.8 setup.py install
+#WORKDIR /usr/lib/x86_64-linux-gnu
+#RUN ln -s libpython3.8.so.1.0 libpython3.6m.so.1.0
 ## fixing bug in view_frames
 RUN sed -i "s/\(subprocess.Popen([^)]*\)/\1,universal_newlines=True/" /opt/ros/noetic/lib/tf/view_frames 
 
-ADD scripts/realsense_install.bash /usr/sbin/
-RUN bash /usr/sbin/realsense_install.bash
-
-ADD scripts/build_opensimrt.bash /bin/catkin_build_opensimrt.bash
 
 ADD scripts/build_catkin_ws.bash /bin/catkin_build_ws.bash
+ADD scripts/build_opensimrt.bash /bin/catkin_build_opensimrt.bash
+
+RUN git clone https://github.com/fbkl/opensimrt_core.git -b feature/no_simtk_namespacing && echo "clone again!" && echo "if i dont change the line it reuses cache because it is stupid,,, actually i am stupid, there is maybe a simpler way to tell it, listen, use cache up to here, but then dont use it anymore and the only way i know is by appending useless echo commands. and as i keep testing they get longer, maybe i will write a novel like this. Once upon a time, in a kingdom far away" 
+
 
 
 ###############################################################################################################################################################################################################################################
@@ -244,5 +245,6 @@ RUN     update-alternatives --install /usr/bin/clangd 		clangd 		/usr/bin/clangd
 	update-alternatives --install /usr/bin/clang-tidy 	clang-tidy 	/usr/bin/clang-tidy-18  10
 
 WORKDIR /catkin_ws
+##maybe  apt install qt5-default --fix-missing
 
 ENTRYPOINT [ "entrypoint.sh" ]

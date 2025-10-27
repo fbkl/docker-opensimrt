@@ -28,7 +28,7 @@ USERNAME=rosopensimrt
 ## I don't want to spend my time debugging how to use pulse audio cookies anymore...
 USER_ID_THAT_WAS_USED_TO_BUILD_THIS_DOCKER=$(id -u)
 USER_GID_THAT_WAS_USED_TO_BUILD_THIS_DOCKER=$(id -u)
-COMPLETE_BUILD=true
+COMPLETE_BUILD=false
 SUFFIX=_complete
 
 USE_REALSENSE=true

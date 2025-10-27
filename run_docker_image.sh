@@ -1,5 +1,6 @@
 #!/bin/bash
 source options.sh
+DOCKER_IMAGE_NAME=rosopensimrt/opensim-rt_complete:devel-all
 NAME=${1:-opensimrt_ros_}
 if [ -z "$2" ] || [ ! -d "$2" ]
   then
