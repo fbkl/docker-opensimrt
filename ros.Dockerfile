@@ -1,6 +1,6 @@
 ARG start_with_image=ros:noetic-ros-base 
 ARG IS_ROOTLESS=false
-FROM ${start_with_image} AS stage1
+FROM rosopensimrt/osrt-full:devel-all AS stage1
 ARG IS_ROOTLESS
 ENV IS_ROOTLESS=${IS_ROOTLESS}
 
@@ -122,11 +122,11 @@ RUN git clone https://github.com/fbkl/opensimrt_bridge.git -b feature/no_simtk_n
 ENV PYTHONPATH=/opt/ros/noetic/lib/python3/dist-packages/:$PYTHONPATH
 
 #I dont think this variable is set yet
-#ENV OPENSIM_PYTHON_DIR=/usr/local/lib/python3.8/site-packages
-#WORKDIR ${OPENSIM_PYTHON_DIR}
-#RUN python3.8 setup.py install
-#WORKDIR /usr/lib/x86_64-linux-gnu
-#RUN ln -s libpython3.8.so.1.0 libpython3.6m.so.1.0
+ENV OPENSIM_PYTHON_DIR=/usr/local/lib/python3.8/site-packages
+WORKDIR ${OPENSIM_PYTHON_DIR}
+RUN python3.8 setup.py install
+WORKDIR /usr/lib/x86_64-linux-gnu
+RUN ln -s libpython3.8.so.1.0 libpython3.6m.so.1.0
 ## fixing bug in view_frames
 RUN sed -i "s/\(subprocess.Popen([^)]*\)/\1,universal_newlines=True/" /opt/ros/noetic/lib/tf/view_frames 
 
@@ -134,7 +134,8 @@ RUN sed -i "s/\(subprocess.Popen([^)]*\)/\1,universal_newlines=True/" /opt/ros/n
 ADD scripts/build_catkin_ws.bash /bin/catkin_build_ws.bash
 ADD scripts/build_opensimrt.bash /bin/catkin_build_opensimrt.bash
 
-RUN git clone https://github.com/fbkl/opensimrt_core.git -b feature/no_simtk_namespacing && echo "clone again!" && echo "if i dont change the line it reuses cache because it is stupid,,, actually i am stupid, there is maybe a simpler way to tell it, listen, use cache up to here, but then dont use it anymore and the only way i know is by appending useless echo commands. and as i keep testing they get longer, maybe i will write a novel like this. Once upon a time, in a kingdom far away" 
+WORKDIR /catkin_opensim/src
+RUN git clone https://github.com/fbkl/opensimrt_core.git -b feature/re_adds_contact_forces && echo "what_"
 
 
 
