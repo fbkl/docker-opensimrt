@@ -69,7 +69,7 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
 		START_WITH_IMAGE=${USERNAME}/osrt-full-$ARCH:$BRANCH 
 		#START_WITH_IMAGE=${USERNAME}/osrt-full:latest 
 	else
-		START_WITH_IMAGE=ros:noetic-ros-base 
+		START_WITH_IMAGE=${USERNAME}/osrt:$BRANCH
 	fi
 	COMMON_OPTIONS=""
 	if [ "$BUILDX" = 1 ]; then
@@ -90,6 +90,8 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
 		cd opensim_docker
 		if [ "$BUILD_STAGES" = true ]; then
 			echo "Building opensim docker by stage"
+			##we dont want to try to keep building if the previous stage hasnt succeeded
+			set -e
 			DOCKER_BUILDKIT=$BUILDX docker build . -f Dockerfile --target=dependencies -t ${USERNAME}/osrt-1-$ARCH:$BRANCH $COMMON_OPTIONS
 			DOCKER_BUILDKIT=$BUILDX docker build . -f Dockerfile --target=stage2 -t ${USERNAME}/osrt-2-$ARCH:$BRANCH $COMMON_OPTIONS
 			DOCKER_BUILDKIT=$BUILDX docker build . -f Dockerfile --target=stage3 -t ${USERNAME}/osrt-3-$ARCH:$BRANCH $COMMON_OPTIONS

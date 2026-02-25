@@ -1,6 +1,6 @@
 ARG start_with_image=ros:noetic-ros-base 
 ARG IS_ROOTLESS=false
-FROM ${start_with_image} AS stage1
+FROM rosopensimrt/osrt-full:devel-all AS stage1
 ARG IS_ROOTLESS
 ENV IS_ROOTLESS=${IS_ROOTLESS}
 
@@ -47,7 +47,17 @@ RUN apt-get update && apt-get install \
 	xz-utils \
 	--yes
 
-RUN apt-get install \
+RUN rm -f /etc/apt/sources.list.d/ros*.list \
+ && rm -f /usr/share/keyrings/ros*-archive-keyring.gpg \
+ apt-get update && apt-get install -y curl gnupg2 \
+ && curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key \
+    -o /usr/share/keyrings/ros-archive-keyring.gpg \
+ && echo "deb [signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros/ubuntu focal main" \
+    > /etc/apt/sources.list.d/ros1.list
+
+RUN rm -rf /var/lib/apt/lists/* \
+ && apt-get clean \
+&& apt-get update && apt-get install \
 	ros-noetic-desktop-full \
 	ros-noetic-moveit \
 	ros-noetic-plotjuggler-ros \
@@ -96,27 +106,22 @@ RUN /bin/ximu.bash
 
 ## dynamic reconfigure has problems with newer versions of pyyaml
 ## also need pupil and nest for eye_tracker
-RUN wget https://bootstrap.pypa.io/get-pip.py && python3 get-pip.py && python3 -m pip install --upgrade pynvim && \
+RUN wget https://bootstrap.pypa.io/pip/3.8/get-pip.py && python3 get-pip.py && python3 -m pip install --upgrade pynvim && \
 	pip3 install --upgrade pip && hash -r && pip3 install --upgrade pip && pip3 install protobuf==3.20.1 mock numpy pupil-labs-realtime-api nest_asyncio && \
 	pip3 install --ignore-installed PyYAML==5.3 
 
 
-WORKDIR /catkin_opensim/src
-
-
-ENV OPENSIMRTDIR=opensimrt_core
-
 #half way into removing those hardcoded paths. still hardcoded, but a bit better
-ADD cmake/Findsimbody.cmake /opt/dependencies
-ADD cmake/FindOpenSim.cmake /opt/dependencies
 
-RUN git clone https://github.com/opensimrt-ros/opensimrt_core.git ./$OPENSIMRTDIR -b aarch64  && ln -s /srv/data $OPENSIMRTDIR/data && cd /catkin_opensim/src/$OPENSIMRTDIR && git checkout 95f62e7c8a9608f43c8aad71dacb9d567b5afa7a && cd ..
-RUN sed 's@~@/opt@' ./$OPENSIMRTDIR/.github/workflows/env_variables >> /etc/profile.d/opensim_envs.sh
 
+
+WORKDIR /catkin_opensim/src
 RUN git clone https://github.com/opensimrt-ros/opensimrt_msgs.git -b devel && cd opensimrt_msgs && git checkout 182dd0a73a3d8a822c8112eab03879490edee09a && cd ..
 #RUN echo "I use this to make it get stuff from git again"
 
-RUN git clone https://github.com/opensimrt-ros/opensimrt_bridge.git -b devel && cd opensimrt_bridge && git checkout 96d388fdfcc538e7be30bb8680fec316b4b594bf && cd ..
+WORKDIR /catkin_opensim/src
+RUN git clone https://github.com/fbkl/opensimrt_bridge.git -b feature/no_simtk_namespacing && echo "." 
+#devel && cd opensimrt_bridge && git checkout 96d388fdfcc538e7be30bb8680fec316b4b594bf && cd ..
 
 ENV PYTHONPATH=/opt/ros/noetic/lib/python3/dist-packages/:$PYTHONPATH
 
@@ -135,6 +140,17 @@ ADD scripts/realsense_install.bash /usr/sbin/
 ADD scripts/build_opensimrt.bash /bin/catkin_build_opensimrt.bash
 
 ADD scripts/build_catkin_ws.bash /bin/catkin_build_ws.bash
+ADD scripts/build_opensimrt.bash /bin/catkin_build_opensimrt.bash
+
+WORKDIR /catkin_opensim/src
+
+################## TODO: ATTENTION WE NEED TO UPDATE THIS TOOOOOOOO:
+
+RUN git clone https://github.com/opensimrt-ros/opensimrt_core.git ./$OPENSIMRTDIR -b aarch64  && ln -s /srv/data $OPENSIMRTDIR/data && cd /catkin_opensim/src/$OPENSIMRTDIR && git checkout 95f62e7c8a9608f43c8aad71dacb9d567b5afa7a && cd ..
+RUN sed 's@~@/opt@' ./$OPENSIMRTDIR/.github/workflows/env_variables >> /etc/profile.d/opensim_envs.sh
+
+#RUN git clone https://github.com/fbkl/opensimrt_core.git -b feature/re_adds_contact_forces && echo "redo_doodaloo_dalooo"
+
 
 
 ###############################################################################################################################################################################################################################################
@@ -213,7 +229,7 @@ RUN useradd -l -u ${uid} -g ${gid} -G sudo,audio,video,input,$INPUTGROUP -s /bin
 RUN chown ${uid}:${gid} -R /catkin_opensim
 
 
-RUN echo "reinstall neovim"
+#RUN echo "reinstall neovim"
 ADD vim /nvim
 ADD scripts/vim_install.bash /nvim
 RUN /nvim/vim_install.bash
@@ -244,8 +260,14 @@ RUN rosdep update
 
 USER root
 
+RUN apt update && apt install clangd-18 clang-tidy-18 -y
+
+RUN     update-alternatives --install /usr/bin/clangd 		clangd 		/usr/bin/clangd-18 	10 && \
+	update-alternatives --install /usr/bin/clang-tidy 	clang-tidy 	/usr/bin/clang-tidy-18  10
+
 WORKDIR /catkin_ws
 ADD scripts/rasppi.sh /bin/setup_raspi.sh
 RUN /bin/setup_raspi.sh
+##maybe  apt install qt5-default --fix-missing
 
 ENTRYPOINT [ "entrypoint.sh" ]
