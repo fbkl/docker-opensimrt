@@ -93,6 +93,9 @@ EXTRA_OPTIONS="--ipc host "
 		EXTRA_OPTIONS=${EXTRA_OPTIONS}"--p 8001:8001/udp "
 		EXTRA_OPTIONS=${EXTRA_OPTIONS}"--p 10000:10000/udp " 
 		EXTRA_OPTIONS=${EXTRA_OPTIONS}"--p 9999:9999 "
+		EXTRA_OPTIONS=${EXTRA_OPTIONS}"--p 11311:11311 " 
+		EXTRA_OPTIONS=${EXTRA_OPTIONS}"--p 11411:11411 " 
+		EXTRA_OPTIONS=${EXTRA_OPTIONS}"--p 1030:1030/udp " 
 		EXTRA_OPTIONS=${EXTRA_OPTIONS}"--p 1030:1030/udp " 
 
 	fi
@@ -104,15 +107,17 @@ EXTRA_OPTIONS="--ipc host "
 		EXTRA_OPTIONS=${EXTRA_OPTIONS}"-e DISPLAY=unix$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix -v /tmp/.docker.xauth:/tmp/.docker.xauth:rw -e XAUTHORITY=/tmp/.docker.xauth "
 		## I think this is for hardware video encoding
 		EXTRA_OPTIONS=${EXTRA_OPTIONS}"--device=/dev/dri:/dev/dri "
+#		EXTRA_OPTIONS=${EXTRA_OPTIONS}"--device=/dev/vc4:/dev/vc4 "
 	fi
 	if [ "$USE_SOUND" = true ]; then
 		
 		EXTRA_OPTIONS=${EXTRA_OPTIONS}"--device=/dev/snd:/dev/snd "
 		EXTRA_OPTIONS=${EXTRA_OPTIONS}"-e PULSE_SERVER=unix:/run/user/${USER_UID}/pulse/native "
 		EXTRA_OPTIONS=${EXTRA_OPTIONS}"-v /run/user/${USER_UID}/pulse:/run/user/${USER_UID}/pulse "
+		### Maybe it makes more sense to read the variables from pulse server and dbus directly
 		#### this will failt with rootless though
 		EXTRA_OPTIONS=${EXTRA_OPTIONS}"-v /var/run/dbus:/var/run/dbus "
-		#EXTRA_OPTIONS=${EXTRA_OPTIONS}"-v /run/user/${USER_UID}/bus:/run/user/${USER_UID}/bus "
+		EXTRA_OPTIONS=${EXTRA_OPTIONS}"-v /run/user/${USER_UID}/bus:/run/user/${USER_UID}/bus -e DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/${USER_UID}/bus "
 		#EXTRA_OPTIONS=${EXTRA_OPTIONS}"-v /lib/modules:/lib/modules --privileged "
 		EXTRA_OPTIONS=${EXTRA_OPTIONS}"--cap-add SYS_ADMIN --device /dev/fuse "
 	fi
@@ -132,7 +137,18 @@ EXTRA_OPTIONS="--ipc host "
 		#exit
 		##ffs how many devices does it add?
 		## this rubbish, i need to look into this filw /usr/local/lib/python3.8/dist-packages/sense_hat/stick.py and check the correct way, compare the thing and add the correct event...
-		EXTRA_OPTIONS=${EXTRA_OPTIONS}"--device=/dev/input/event6:/dev/input/event6 "
+		for i in /dev/input/event*
+		do
+			echo $i
+			#if [ -f $i/name ]; then
+			#	log_debug exists
+				#if grep -Fq "RPi-Sense FB" $i/name ; then
+					EXTRA_OPTIONS=${EXTRA_OPTIONS}"--device $i:$i "
+				#fi
+			#fi
+		done
+		log_debug "did i find event input?" $EXTRA_OPTIONS
+		#EXTRA_OPTIONS=${EXTRA_OPTIONS}"--device=/dev/input/event6:/dev/input/event6 "
 		EXTRA_OPTIONS=${EXTRA_OPTIONS}"--device=/dev/fb0:/dev/fb0 "
 		I2CS="/dev/i2c*"
 		I2C=""
