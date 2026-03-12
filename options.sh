@@ -23,6 +23,7 @@ USE_VIDEO=true #what I really mean is using X. if you want to show the opengl vi
 USE_SOUND=true # to have the wav files play correctly
 
 USE_CAMERAS=true
+USE_NVIDIA=true
 
 USERNAME=rosopensimrt
 ## I don't want to spend my time debugging how to use pulse audio cookies anymore...
@@ -131,7 +132,10 @@ EXTRA_OPTIONS="--ipc host "
 		EXTRA_OPTIONS=${EXTRA_OPTIONS}"$V4LDEVICES "
 	fi
 
+	if [ "$USE_NVIDIA" = true ]; then
 
+		EXTRA_OPTIONS=${EXTRA_OPTIONS}"--runtime=nvidia "
+	fi
 
 BRANCH_RAW=$(git rev-parse --abbrev-ref HEAD )
 

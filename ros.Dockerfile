@@ -47,7 +47,17 @@ RUN apt-get update && apt-get install \
 	xz-utils \
 	--yes
 
-RUN apt-get install \
+RUN rm -f /etc/apt/sources.list.d/ros*.list \
+ && rm -f /usr/share/keyrings/ros*-archive-keyring.gpg \
+ apt-get update && apt-get install -y curl gnupg2 \
+ && curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key \
+    -o /usr/share/keyrings/ros-archive-keyring.gpg \
+ && echo "deb [signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros/ubuntu focal main" \
+    > /etc/apt/sources.list.d/ros1.list
+
+RUN rm -rf /var/lib/apt/lists/* \
+ && apt-get clean \
+&& apt-get update && apt-get install \
 	ros-noetic-desktop-full \
 	ros-noetic-moveit \
 	ros-noetic-plotjuggler-ros \
@@ -135,7 +145,7 @@ ADD scripts/build_catkin_ws.bash /bin/catkin_build_ws.bash
 ADD scripts/build_opensimrt.bash /bin/catkin_build_opensimrt.bash
 
 WORKDIR /catkin_opensim/src
-RUN git clone https://github.com/fbkl/opensimrt_core.git -b feature/re_adds_contact_forces && echo "how_"
+RUN git clone https://github.com/fbkl/opensimrt_core.git -b feature/re_adds_contact_forces && echo "redo_doodaloo_dalooo"
 
 
 
