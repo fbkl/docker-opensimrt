@@ -69,7 +69,7 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
 		START_WITH_IMAGE=${USERNAME}/osrt-full-$ARCH:$BRANCH 
 		#START_WITH_IMAGE=${USERNAME}/osrt-full:latest 
 	else
-		START_WITH_IMAGE=${USERNAME}/osrt:$BRANCH
+		START_WITH_IMAGE=${USERNAME}/osrt-$ARCH:$BRANCH
 	fi
 	COMMON_OPTIONS=""
 	if [ "$BUILDX" = 1 ]; then
@@ -86,7 +86,7 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
 	"
 
 	if [ "$COMPLETE_BUILD" = true ]; then
-		echo "USING COMPLETE BUILD"
+		log_info "USING COMPLETE BUILD - building Opensim Docker"
 		cd opensim_docker
 		if [ "$BUILD_STAGES" = true ]; then
 			echo "Building opensim docker by stage"
@@ -100,32 +100,24 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
 		cd ..
 	fi
 	if [ "$BUILD_STAGES" = true ]; then
-		echo "Building opensimrt by stage"
+		log_info "Building opensimrt by stage"
 		DOCKER_BUILDKIT=$BUILDX docker build . -f ros.Dockerfile -t ${USERNAME}/opensim-rt1${SUFFIX}-$ARCH:$BRANCH  \
 			--target=stage1 \
 			--build-arg start_with_image=${START_WITH_IMAGE} \
-			--build-arg download_precompiled_opensim=${COMPLETE_BUILD} \
 			$COMMON_OPTIONS
 		DOCKER_BUILDKIT=$BUILDX docker build . -f ros.Dockerfile -t ${USERNAME}/opensim-rt2${SUFFIX}-$ARCH:$BRANCH  \
 			--target=stage2 \
-			--build-arg start_with_image=${START_WITH_IMAGE} \
-			--build-arg download_precompiled_opensim=${COMPLETE_BUILD} \
 			$COMMON_OPTIONS
 		DOCKER_BUILDKIT=$BUILDX docker build . -f ros.Dockerfile -t ${USERNAME}/opensim-rt3${SUFFIX}-$ARCH:$BRANCH  \
 			--target=stage3 \
-			--build-arg start_with_image=${START_WITH_IMAGE} \
-			--build-arg download_precompiled_opensim=${COMPLETE_BUILD} \
 			$COMMON_OPTIONS
 		DOCKER_BUILDKIT=$BUILDX docker build . -f ros.Dockerfile -t ${USERNAME}/opensim-rt4${SUFFIX}-$ARCH:$BRANCH  \
 			--target=final \
-			--build-arg start_with_image=${START_WITH_IMAGE} \
-			--build-arg download_precompiled_opensim=${COMPLETE_BUILD} \
 			$COMMON_OPTIONS
 	fi
-	echo "Building main opensimrt image."
+	log_info "Building main ros-opensimrt image."
 	DOCKER_BUILDKIT=$BUILDX docker build . -f ros.Dockerfile -t ${USERNAME}/opensim-rt${SUFFIX}-$ARCH:$BRANCH  \
 		--build-arg start_with_image=${START_WITH_IMAGE} \
-		--build-arg download_precompiled_opensim=${COMPLETE_BUILD} \
 		$COMMON_OPTIONS
 
 elif [ "$(expr substr $(uname -s) 1 10)" == "MINGW32_NT" ]; then

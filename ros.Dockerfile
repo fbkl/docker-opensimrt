@@ -1,6 +1,6 @@
 ARG start_with_image=ros:noetic-ros-base 
 ARG IS_ROOTLESS=false
-FROM rosopensimrt/osrt-full:devel-all AS stage1
+FROM ${start_with_image} AS stage1
 ARG IS_ROOTLESS
 ENV IS_ROOTLESS=${IS_ROOTLESS}
 
@@ -71,16 +71,18 @@ RUN /tmp/conf_alsa.bash
 
 WORKDIR /opt/dependencies
 
-RUN if [ "${download_precompiled_opensim}" = true ]; then \
-	wget https://sourceforge.net/projects/dependencies/files/opensim-core/opensim-core-4.1-ubuntu-18.04.tar.xz && \
-        tar --no-same-owner -xvf opensim-core-4.1-ubuntu-18.04.tar.xz && rm opensim-core-4.1-ubuntu-18.04.tar.xz \
-    ;fi
 
-RUN  wget https://sourceforge.net/projects/dependencies/files/oscpack/oscpack-ubuntu-18.04.tar.xz && \
-        tar --no-same-owner -xvf oscpack-ubuntu-18.04.tar.xz && rm oscpack-ubuntu-18.04.tar.xz 
+## we want this to point to our precompiled package from the ppa instead, right?
+#RUN if [ "${download_precompiled_opensim}" = true ]; then \
+#	wget https://sourceforge.net/projects/dependencies/files/opensim-core/opensim-core-4.1-ubuntu-18.04.tar.xz && \
+#        tar --no-same-owner -xvf opensim-core-4.1-ubuntu-18.04.tar.xz && rm opensim-core-4.1-ubuntu-18.04.tar.xz \
+#    ;fi
 
-RUN  wget https://sourceforge.net/projects/dependencies/files/vicon/ViconDataStreamSDK_1.7.1_96542h.tar.xz && \
-        tar --no-same-owner -xvf ViconDataStreamSDK_1.7.1_96542h.tar.xz && rm ViconDataStreamSDK_1.7.1_96542h.tar.xz
+#RUN  wget https://sourceforge.net/projects/dependencies/files/oscpack/oscpack-ubuntu-18.04.tar.xz && \
+#        tar --no-same-owner -xvf oscpack-ubuntu-18.04.tar.xz && rm oscpack-ubuntu-18.04.tar.xz 
+
+#RUN  wget https://sourceforge.net/projects/dependencies/files/vicon/ViconDataStreamSDK_1.7.1_96542h.tar.xz && \
+#        tar --no-same-owner -xvf ViconDataStreamSDK_1.7.1_96542h.tar.xz && rm ViconDataStreamSDK_1.7.1_96542h.tar.xz
 
 RUN git clone https://github.com/mysablehats/OpenSimRT_data.git /srv/data && cd /srv/data && git checkout 3b0aa9d31fd1b86458ff3bcafa8d5ce3411391b5
 
@@ -145,7 +147,7 @@ ADD scripts/build_opensimrt.bash /bin/catkin_build_opensimrt.bash
 WORKDIR /catkin_opensim/src
 
 ################## TODO: ATTENTION WE NEED TO UPDATE THIS TOOOOOOOO:
-
+ENV OPENSIMRTDIR=opensimrt_core
 RUN git clone https://github.com/opensimrt-ros/opensimrt_core.git ./$OPENSIMRTDIR -b aarch64  && ln -s /srv/data $OPENSIMRTDIR/data && cd /catkin_opensim/src/$OPENSIMRTDIR && git checkout 95f62e7c8a9608f43c8aad71dacb9d567b5afa7a && cd ..
 RUN sed 's@~@/opt@' ./$OPENSIMRTDIR/.github/workflows/env_variables >> /etc/profile.d/opensim_envs.sh
 
