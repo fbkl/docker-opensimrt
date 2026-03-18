@@ -23,7 +23,7 @@ USE_VIDEO=true #what I really mean is using X. if you want to show the opengl vi
 USE_SOUND=true # to have the wav files play correctly
 
 USE_CAMERAS=true
-USE_NVIDIA=true
+USE_NVIDIA=false
 
 USERNAME=rosopensimrt
 ## I don't want to spend my time debugging how to use pulse audio cookies anymore...
@@ -102,10 +102,11 @@ EXTRA_OPTIONS="--ipc host "
 	fi
 	if [ "$USE_VIDEO" = true ]; then
 		## slightly better alternative, it was working, but stopped, going back to open everything
-		#	xauth nlist $DISPLAY | sed -e 's/^..../ffff/' | xauth -f /tmp/.docker.xauth nmerge -
-		xhost +local:docker
+		touch /tmp/.docker.xauth
+		xauth nlist $DISPLAY | sed -e 's/^..../ffff/' | xauth -f /tmp/.docker.xauth nmerge -
+		#xhost +local:docker
 
-		EXTRA_OPTIONS=${EXTRA_OPTIONS}"-e DISPLAY=unix$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix -v /tmp/.docker.xauth:/tmp/.docker.xauth:rw -e XAUTHORITY=/tmp/.docker.xauth "
+		EXTRA_OPTIONS=${EXTRA_OPTIONS}"-e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix -v /tmp/.docker.xauth:/tmp/.docker.xauth:rw -e XAUTHORITY=/tmp/.docker.xauth "
 		## I think this is for hardware video encoding
 		EXTRA_OPTIONS=${EXTRA_OPTIONS}"--device=/dev/dri:/dev/dri "
 #		EXTRA_OPTIONS=${EXTRA_OPTIONS}"--device=/dev/vc4:/dev/vc4 "

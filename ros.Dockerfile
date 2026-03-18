@@ -148,10 +148,10 @@ WORKDIR /catkin_opensim/src
 
 ################## TODO: ATTENTION WE NEED TO UPDATE THIS TOOOOOOOO:
 ENV OPENSIMRTDIR=opensimrt_core
-RUN git clone https://github.com/opensimrt-ros/opensimrt_core.git ./$OPENSIMRTDIR -b aarch64  && ln -s /srv/data $OPENSIMRTDIR/data && cd /catkin_opensim/src/$OPENSIMRTDIR && git checkout 95f62e7c8a9608f43c8aad71dacb9d567b5afa7a && cd ..
-RUN sed 's@~@/opt@' ./$OPENSIMRTDIR/.github/workflows/env_variables >> /etc/profile.d/opensim_envs.sh
+#RUN git clone https://github.com/opensimrt-ros/opensimrt_core.git ./$OPENSIMRTDIR -b aarch64  && ln -s /srv/data $OPENSIMRTDIR/data && cd /catkin_opensim/src/$OPENSIMRTDIR && git checkout 95f62e7c8a9608f43c8aad71dacb9d567b5afa7a && cd ..
+#RUN sed 's@~@/opt@' ./$OPENSIMRTDIR/.github/workflows/env_variables >> /etc/profile.d/opensim_envs.sh
 
-#RUN git clone https://github.com/fbkl/opensimrt_core.git -b feature/re_adds_contact_forces && echo "redo_doodaloo_dalooo"
+RUN git clone https://github.com/fbkl/opensimrt_core.git -b feature/re_adds_contact_forces #&& echo "redo_doodaloo_dalooo"
 
 
 
