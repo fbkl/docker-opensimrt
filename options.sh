@@ -103,6 +103,7 @@ EXTRA_OPTIONS="--ipc host "
 	if [ "$USE_VIDEO" = true ]; then
 		## slightly better alternative, it was working, but stopped, going back to open everything
 		touch /tmp/.docker.xauth
+		log_info "Display is set to $DISPLAY"
 		xauth nlist $DISPLAY | sed -e 's/^..../ffff/' | xauth -f /tmp/.docker.xauth nmerge -
 		#xhost +local:docker
 
@@ -203,4 +204,7 @@ fi
 
 #DOCKER_IMAGE_NAME=rosopensimrt/opensim-rt:devel-all
 DOCKER_IMAGE_NAME=${USERNAME}/opensim-rt${SUFFIX}-$ARCH:$BRANCH 
+
+
+EXTRA_OPTIONS=${EXTRA_OPTIONS}" -v /home/${USER}/.ssh/:/home/${USERNAME}/.ssh"
 
