@@ -7,6 +7,7 @@
 #
 # @description : 
 ######################################################################
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 #BRANCH=latest
 ARCH=$(uname -m)
@@ -43,7 +44,7 @@ USE_N_CORES=$(nproc)
 BUILDX=1
 ####SETUP
 
-source scripts/log_defs.bash
+source ${DIR}/scripts/log_defs.bash
 
 IS_ROOTLESS=false
 # I think this is a linux only issue.
@@ -73,7 +74,7 @@ EXTRA_OPTIONS="--ipc host "
 			exit 0
 		fi
 		log_info "You can put the dongle after the android vm has started"
-		scripts/how_to_start_bt_androidx86_vm.py &
+		${DIR}/scripts/how_to_start_bt_androidx86_vm.py &
 	fi
 	
 	## remembers current ssid before creating hotspot

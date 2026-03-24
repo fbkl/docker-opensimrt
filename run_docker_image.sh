@@ -1,5 +1,7 @@
-	#!/bin/bash
-source options.sh
+#!/bin/bash
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd $DIR
+source ${DIR}/options.sh
 #DOCKER_IMAGE_NAME=rosopensimrt/opensim-rt_complete:devel-all
 NAME=${1:-opensimrt_ros_}
 if [ -z "$2" ] || [ ! -d "$2" ]
@@ -19,7 +21,7 @@ else
     THIS_WINDOW_TITLE="MAIN WINDOW DO NOT CLOSE!!!! [$CATKIN_WS_DIR] $BRANCH"
     ## i cant make sense of this
     #EXTRA_OPTIONS=${EXTRA_OPTIONS}" -v $2:/$CATKIN_WS_DIR "
-    EXTRA_OPTIONS=${EXTRA_OPTIONS}" -v $2:/catkin_ws "
+    EXTRA_OPTIONS=${EXTRA_OPTIONS}" -v $2:/catkin_ws --tty "
 fi
 
 ##first 2 arguments need to be the name of the run instance and the catkin_ws to be mounted.
