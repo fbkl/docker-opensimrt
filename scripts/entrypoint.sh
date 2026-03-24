@@ -59,6 +59,8 @@ dirs_to_share=(
 #"/dev/snd"
 #"/dev/dri"
 
+export ROS_MASTER_URI=http://raspberrypi:11311
+
 cleanup()
 {
 	log_info "attempting cleanup"
