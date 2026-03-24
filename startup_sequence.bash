@@ -23,8 +23,9 @@ W2=(
 #more if you want....
 
 W3=(
-	"ROS_MASTER_URI=http://raspberrypi:11311 rviz"
-	"ROS_MASTER_URI=http://raspberrypi:11311 ./start_only_flexbe.sh"
+	"./devel_run_docker_image.sh"
+	"sleep 5 && ROS_MASTER_URI=http://raspberrypi:11311 rviz"
+	"sleep 5 && ROS_MASTER_URI=http://raspberrypi:11311 ./start_only_flexbe.sh"
 
 )
 
