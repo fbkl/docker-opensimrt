@@ -28,9 +28,9 @@ W3=(
 
 )
 
-#create_tmux_window "$SESSION_NAME" "raspberries" "${W2[@]}"
-#create_tmux_window "$SESSION_NAME" "framework" "${W1[@]}"
-#create_tmux_window "$SESSION_NAME" "local_vis" "${W3[@]}"
+create_tmux_window "$SESSION_NAME" "raspberries" "${W2[@]}"
+create_tmux_window "$SESSION_NAME" "framework" "${W1[@]}"
+create_tmux_window "$SESSION_NAME" "local_vis" "${W3[@]}"
 #more if you want....
 
 tmux -2 a -t $SESSION_NAME
