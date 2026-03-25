@@ -3,8 +3,10 @@
 main_window_tmux()
 {
 	local session="$1"
-	tmux new-session -s $session -n "main_terminal" -d
+	local window_name="$2"
+	tmux new-session -s $session -n "$window_name" -d
 	tmux set-option -s -t $session default-command "bash --rcfile ~.bashrc"
+	tmux/close_tmux_button.py $session &
 }
 
 create_tmux_window() {
@@ -12,8 +14,13 @@ create_tmux_window() {
 	local session="$1"
 	local window_name="$2"
 	local commands=("${@:3}")
+	local titles=("${@:4}")
 
-	tmux new-window -n "$window_name"
+	if tmux list-windows -t "$session" -F "#{window_name}" | grep -qx "$window_name"; then
+		echo "Window exists."
+	else
+		tmux new-window -n "$window_name"
+	fi
 
 	local num_commands=${#commands[@]}
 	local num_splits
@@ -37,8 +44,12 @@ create_tmux_window() {
 	done
 
 	local pane_index=0
-	for command in "${commands[@]}"; do
-		tmux send-keys -t "$session:$window_name.$pane_index" "$command" C-m
+	for entry in "${commands[@]}"; do
+		cmd="${entry%%|*}"
+		title="${entry##*|}"
+		echo $cmd $title
+		tmux send-keys -t "$session:$window_name.$pane_index" "printf '\\033]2;%s\\033\\\\' '$title'" C-m
+		tmux send-keys -t "$session:$window_name.$pane_index" "$cmd" C-m
 		((pane_index++))
 	done
 
