@@ -11,12 +11,14 @@ W1=(
 )
 
 W2=(
-	"ssh frederico@raspberrypi -X|raspberrypi"
-	"ssh frederico@raspberrypi 'TERM=xterm-256color htop'|raspberrypi"
-	"ssh frederico@rpi5-ubuntu -X|rpi5-ubuntu"
-	"ssh frederico@rpi5-ubuntu 'TERM=xterm-256color htop'|rpi5-ubuntu"	
-	"ssh frederico@rpi5-silver-ubuntu -X|rpi5-silver-ubuntu"
-	"ssh frederico@rpi5-silver-ubuntu 'TERM=xterm-256color htop'|rpi5-silver-ubuntu"
+	"bash |frkle-Predator-PT515-52"
+	"TERM=xterm-256color htop|frkle-Predator-PT515-52"
+	"ssh -t frederico@raspberrypi -X|raspberrypi"
+	"ssh -t frederico@raspberrypi 'TERM=xterm-256color htop'|raspberrypi"
+	"ssh -t frederico@rpi5-ubuntu -X|rpi5-ubuntu"
+	"ssh -t frederico@rpi5-ubuntu 'TERM=xterm-256color htop'|rpi5-ubuntu"	
+	"ssh -t frederico@rpi5-silver-ubuntu -X|rpi5-silver-ubuntu"
+	"ssh -t frederico@rpi5-silver-ubuntu 'TERM=xterm-256color htop'|rpi5-silver-ubuntu"
 	
 )
 #more if you want....
@@ -28,7 +30,7 @@ W3=(
 
 )
 
-create_tmux_window "$SESSION_NAME" "raspberries" "${W2[@]}"
+create_tmux_window "$SESSION_NAME" "hosts" "${W2[@]}"
 create_tmux_window "$SESSION_NAME" "framework" "${W1[@]}"
 create_tmux_window "$SESSION_NAME" "local_vis" "${W3[@]}"
 #more if you want....
