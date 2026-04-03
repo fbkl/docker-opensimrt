@@ -47,7 +47,7 @@ create_tmux_window() {
 	for entry in "${commands[@]}"; do
 		cmd="${entry%%|*}"
 		title="${entry##*|}"
-		echo $cmd $title
+		#echo $cmd $title
 		tmux send-keys -t "$session:$window_name.$pane_index" "printf '\\033]2;%s\\033\\\\' '$title'" C-m
 		tmux send-keys -t "$session:$window_name.$pane_index" "$cmd" C-m
 		((pane_index++))

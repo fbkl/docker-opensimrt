@@ -39,7 +39,7 @@ class CloseTmuxButtonFrame(tk.Frame):
                      stdout=subprocess.PIPE,
                      stderr=subprocess.PIPE)
         stdout, stderr = process.communicate()
-        subprocess.run(["echo", mystring])
+        #subprocess.run(["echo", mystring])
         exit()
 
     def git_remote_update(self):

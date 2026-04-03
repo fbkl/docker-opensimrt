@@ -25,8 +25,9 @@ W2=(
 
 W3=(
 	"./devel_run_docker_image.sh|Local Framework"
-	"sleep 5 && ROS_MASTER_URI=http://raspberrypi:11311 rviz|rviz"
-	"sleep 5 && ROS_MASTER_URI=http://raspberrypi:11311 ./start_only_flexbe.sh|FlexBE app"
+	"sleep 5 && ROS_MASTER_URI=http://raspberrypi:11311 tmux/start_rviz.sh|rviz"
+	"sleep 5 && ROS_MASTER_URI=http://raspberrypi:11311 tmux/start_ikvis.sh|IK visualizer"
+	"sleep 5 && ROS_MASTER_URI=http://raspberrypi:11311 tmux/start_only_flexbe.sh|FlexBE app"
 
 )
 
