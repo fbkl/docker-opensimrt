@@ -1,5 +1,19 @@
 SESSION_NAME=VIOBackpack
 
+CONN_NAME=Asus5g
+MAINPI_HOST=raspberrypi
+
+if ! nmcli con show --active | grep -q "^$CONN_NAME"; then
+	echo "ERROR: '$CONN_NAME' is not connected. Turn on the router and connect it to the ethernet port! " >&2
+	exit 1
+fi
+
+if ! ping -c 1 -W 2 "$MAINPI_HOST" &>/dev/null; then
+	echo "ERROR: Cannot reach $MAINPI_HOST. Turn on all the backpack pis." >&2
+	exit 1
+fi
+
+
 source tmux/common_functions.bash
 main_window_tmux "$SESSION_NAME" "framework"
 
@@ -24,10 +38,10 @@ W2=(
 #more if you want....
 
 W3=(
-	"./devel_run_docker_image.sh|Local Framework"
-	"sleep 5 && ROS_MASTER_URI=http://raspberrypi:11311 tmux/start_rviz.sh|rviz"
-	"sleep 5 && ROS_MASTER_URI=http://raspberrypi:11311 tmux/start_ikvis.sh|IK visualizer"
-	"sleep 5 && ROS_MASTER_URI=http://raspberrypi:11311 tmux/start_only_flexbe.sh|FlexBE app"
+	"sleep 5 && ./devel_run_docker_image.sh|Local Framework"
+	"sleep 6 && ROS_MASTER_URI=http://raspberrypi:11311 tmux/start_rviz.sh|rviz"
+	"sleep 6 && ROS_MASTER_URI=http://raspberrypi:11311 tmux/start_ikvis.sh|IK visualizer"
+	"sleep 6 && ROS_MASTER_URI=http://raspberrypi:11311 tmux/start_only_flexbe.sh|FlexBE app"
 
 )
 

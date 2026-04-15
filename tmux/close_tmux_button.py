@@ -23,6 +23,11 @@ class CloseTmuxButtonFrame(tk.Frame):
         self.update_raspberry_ws.pack()
         self.log = ScrolledText(self, height=10, state=tk.DISABLED)
         self.log.pack()
+        self.shutdown_buttons = []
+        for i, host in enumerate(["rpi5-ubuntu","rpi5-silver-ubuntu", "raspberrypi"]):
+            shutdown_pi = tk.Button(self, text=f"Shutdown {host}", width=150, command = lambda :self.custom_command(host, "sudo shutdown",self.shutdown_buttons, i))
+            self.shutdown_buttons.append(shutdown_pi)
+            self.shutdown_buttons[i].pack()
         self.submit.pack()
 
     def log_output(self, text):
@@ -55,6 +60,22 @@ class CloseTmuxButtonFrame(tk.Frame):
                 self.after(0, self.log_output, stdout.decode("utf-8") + stderr.decode("utf-8"))
             finally:
                 self.after(0, self.update_raspberry_ws.config, {"state": tk.NORMAL})
+
+        threading.Thread(target=do_update,daemon=True).start()
+        #print(self.hostreturn)
+    def custom_command(self,host, custom_command,button_list, button_i):
+#ssh frederico@raspberrypi "cd /home/frederico/github/docker-opensimrt/catkin_devel/src/ros_biomech && git pull && git submodule update --init --recursive"
+        self.user= "frederico"
+        self.command = custom_command
+        button = button_list[button_i]
+        def do_update():
+            button.config(state=tk.DISABLED)
+            try:
+                self.proc = subprocess.Popen(["ssh","-q", "-o","BatchMode=yes","-o","ConnectTimeout=3",f"{self.user}@{host}", self.command], stdout= subprocess.PIPE, stderr=subprocess.PIPE)
+                stdout, stderr = self.proc.communicate()
+                self.after(0, self.log_output, stdout.decode("utf-8") + stderr.decode("utf-8"))
+            finally:
+                self.after(0, button.config, {"state": tk.NORMAL})
 
         threading.Thread(target=do_update,daemon=True).start()
         #print(self.hostreturn)
