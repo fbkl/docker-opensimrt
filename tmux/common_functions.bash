@@ -5,7 +5,7 @@ main_window_tmux()
 	local session="$1"
 	local window_name="$2"
 	tmux new-session -s $session -n "$window_name" -d
-	tmux set-option -s -t $session default-command "bash --rcfile ~.bashrc"
+	##tmux set-option -s -t $session default-command "bash --rcfile ~.bashrc"
 	tmux/close_tmux_button.py $session &
 }
 
@@ -52,6 +52,7 @@ create_tmux_window() {
 		tmux send-keys -t "$session:$window_name.$pane_index" "$cmd" C-m
 		((pane_index++))
 	done
+	
 
 }
 

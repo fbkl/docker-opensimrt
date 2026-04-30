@@ -34,6 +34,8 @@ SUFFIX=_complete
 
 USE_REALSENSE=true
 
+USE_HOST_SSHOPTS=true
+
 BUILDX=1
 ####SETUP
 
@@ -135,6 +137,14 @@ EXTRA_OPTIONS="--ipc host "
 	if [ "$USE_NVIDIA" = true ]; then
 
 		EXTRA_OPTIONS=${EXTRA_OPTIONS}"--runtime=nvidia "
+	fi
+	if [ "$USE_HOST_SSHOPTS" = true ]; then
+
+		EXTRA_OPTIONS=${EXTRA_OPTIONS}"-v /home/$USER/.ssh:/home/$USERNAME/.ssh "
+	else
+		EXTRA_OPTIONS=${EXTRA_OPTIONS}"-v $(pwd)/.ssh:/home/$USERNAME/.ssh "
+		EXTRA_OPTIONS=${EXTRA_OPTIONS}"-e ROSLAUNCH_SSH_UNKNOWN=1 " 
+
 	fi
 
 BRANCH_RAW=$(git rev-parse --abbrev-ref HEAD )

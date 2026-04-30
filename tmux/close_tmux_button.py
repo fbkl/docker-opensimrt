@@ -25,7 +25,7 @@ class CloseTmuxButtonFrame(tk.Frame):
         self.log.pack()
         self.shutdown_buttons = []
         for i, host in enumerate(["rpi5-ubuntu","rpi5-silver-ubuntu", "raspberrypi"]):
-            shutdown_pi = tk.Button(self, text=f"Shutdown {host}", width=150, command = lambda :self.custom_command(host, "sudo shutdown",self.shutdown_buttons, i))
+            shutdown_pi = tk.Button(self, text=f"Shutdown {host}", width=150, command = lambda host=host:self.custom_command(host, "sudo shutdown",self.shutdown_buttons, i))
             self.shutdown_buttons.append(shutdown_pi)
             self.shutdown_buttons[i].pack()
         self.submit.pack()
