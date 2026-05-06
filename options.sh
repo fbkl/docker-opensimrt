@@ -153,7 +153,9 @@ EXTRA_OPTIONS="--ipc host "
 		done
 		log_debug "did i find event input?" $EXTRA_OPTIONS
 		#EXTRA_OPTIONS=${EXTRA_OPTIONS}"--device=/dev/input/event6:/dev/input/event6 "
-		EXTRA_OPTIONS=${EXTRA_OPTIONS}"--device=/dev/fb0:/dev/fb0 "
+		if [ -f /dev/fb0 ]; then
+			EXTRA_OPTIONS=${EXTRA_OPTIONS}"--device=/dev/fb0:/dev/fb0 "
+		fi
 		I2CS="/dev/i2c*"
 		I2C=""
 		for i in $I2CS
@@ -207,5 +209,5 @@ fi
 DOCKER_IMAGE_NAME=${USERNAME}/opensim-rt${SUFFIX}-$ARCH:$BRANCH 
 
 
-EXTRA_OPTIONS=${EXTRA_OPTIONS}" -v /home/${USER}/.ssh/:/home/${USERNAME}/.ssh"
+EXTRA_OPTIONS=${EXTRA_OPTIONS}" -v /home/${USER}/.ssh/:/home/${USERNAME}/.ssh -v /mnt/osim:/srv/shared "
 
