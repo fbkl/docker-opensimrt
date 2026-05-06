@@ -1,7 +1,7 @@
 [submodule "catkin_devel/src/ros_biomech"]
 	path = catkin_devel/src/ros_biomech
-	url = git@github.com:fbkl/ros-biomech.git
-	branch = devel-all
+	url = git@github.com:fbkl/rbm_core_ws.git
+	branch = devel
 [submodule "Data/refdata"]
 	path = Data/refdata
 	url = https://github.com/opensimrt-ros/refdata.git
