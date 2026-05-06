@@ -164,5 +164,5 @@ fi
 #DOCKER_IMAGE_NAME=rosopensimrt/opensim-rt:devel-all
 DOCKER_IMAGE_NAME=${USERNAME}/opensim-rt${SUFFIX}:$BRANCH 
 
-EXTRA_OPTIONS=${EXTRA_OPTIONS}" -v /home/${USER}/shared/osim:/srv/shared "⏎
+EXTRA_OPTIONS=${EXTRA_OPTIONS}" -v /home/${USER}/shared/osim:/srv/shared "
 
