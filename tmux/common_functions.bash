@@ -56,4 +56,10 @@ create_tmux_window() {
 
 }
 
-
+cleanup() {
+    local machines=("$@")
+    for host in "${machines[@]}"; do
+        ssh $host "pkill -f ros; true"
+    done
+    pkill -f ros; true
+}

@@ -58,7 +58,7 @@ log_debug IS_ROOTLESS=$IS_ROOTLESS
 
 USER_UID=$(id -u)
 
-EXTRA_OPTIONS="--ipc host "
+EXTRA_OPTIONS="--ipc host -e ROSLAUNCH_SSH_UNKNOWN=1 "
 
 	if [ "$USE_ANDROID_VM" = true ]; then #bash is weird...
 		#let's also run the vm for the android device

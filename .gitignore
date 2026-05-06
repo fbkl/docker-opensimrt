@@ -6,3 +6,4 @@ catkin_ws/build/*
 catkin_ws/.*
 opensimrt/*
 Data/*
+.ssh
