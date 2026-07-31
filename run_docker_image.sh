@@ -19,7 +19,7 @@ else
     THIS_WINDOW_TITLE="MAIN WINDOW DO NOT CLOSE!!!! [$CATKIN_WS_DIR] $BRANCH"
     ## i cant make sense of this
     #EXTRA_OPTIONS=${EXTRA_OPTIONS}" -v $2:/$CATKIN_WS_DIR "
-    EXTRA_OPTIONS=${EXTRA_OPTIONS}" -v $2:/catkin_ws "
+    EXTRA_OPTIONS=${EXTRA_OPTIONS}" -v $2:/catkin_ws -v $(pwd)/catkin_ws:/catkin_opensim"
 fi
 
 ##first 2 arguments need to be the name of the run instance and the catkin_ws to be mounted.

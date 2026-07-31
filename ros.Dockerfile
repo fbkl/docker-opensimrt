@@ -121,12 +121,8 @@ RUN wget https://bootstrap.pypa.io/pip/3.8/get-pip.py && python3 get-pip.py && p
 ADD scripts/realsense_install.bash /usr/sbin/
 RUN bash /usr/sbin/realsense_install.bash
 
-WORKDIR /catkin_opensim/src
-RUN git clone https://github.com/opensimrt-ros/opensimrt_msgs.git -b devel && cd opensimrt_msgs && git checkout 182dd0a73a3d8a822c8112eab03879490edee09a && cd ..
 #RUN echo "I use this to make it get stuff from git again"
 
-WORKDIR /catkin_opensim/src
-RUN git clone https://github.com/fbkl/opensimrt_bridge.git -b feature/no_simtk_namespacing && echo "." 
 #devel && cd opensimrt_bridge && git checkout 96d388fdfcc538e7be30bb8680fec316b4b594bf && cd ..
 
 ENV PYTHONPATH=/opt/ros/noetic/lib/python3/dist-packages/:$PYTHONPATH
@@ -144,18 +140,10 @@ RUN sed -i "s/\(subprocess.Popen([^)]*\)/\1,universal_newlines=True/" /opt/ros/n
 ADD scripts/build_catkin_ws.bash /bin/catkin_build_ws.bash
 ADD scripts/build_opensimrt.bash /bin/catkin_build_opensimrt.bash
 
-WORKDIR /catkin_opensim/src
-RUN git clone https://github.com/fbkl/opensimrt_core.git -b feature/re_adds_contact_forces && echo "redo_doodaloo_dalooo_dadidooo and update"
-
-
-
 ###############################################################################################################################################################################################################################################
 FROM stage2 AS stage3
 #WORKDIR /catkin_opensim/src/opensimrt_core
 #RUN git pull
-WORKDIR /catkin_opensim
-#RUN . /opt/ros/noetic/setup.sh && . /etc/profile.d/opensim_envs.sh && catkin_make ## it's not a session, so it wont load the exports...
-RUN /bin/catkin_build_opensimrt.bash
 
 FROM stage3 AS final
 
@@ -216,7 +204,6 @@ RUN groupadd -g ${gid} ${group}
 RUN useradd -l -u ${uid} -g ${gid} -G sudo,audio,video -s /bin/bash -m -p '$6$WsqPSjlIKm37devi$U3hwXWYilUOFYRH8EE7FoStlfCfeK0dJY3.fdEWKFJkDGMg6p9YQIsycpcv7OM4SFSdz3D0sfEGyrY8reNSgu1' ${user}
 # Switch to user
 
-RUN chown ${uid}:${gid} -R /catkin_opensim
 
 
 #RUN echo "reinstall neovim"
