@@ -145,7 +145,7 @@ ADD scripts/build_catkin_ws.bash /bin/catkin_build_ws.bash
 ADD scripts/build_opensimrt.bash /bin/catkin_build_opensimrt.bash
 
 WORKDIR /catkin_opensim/src
-RUN git clone https://github.com/fbkl/opensimrt_core.git -b feature/re_adds_contact_forces && echo "redo_doodaloo_dalooo"
+RUN git clone https://github.com/fbkl/opensimrt_core.git -b feature/re_adds_contact_forces && echo "redo_doodaloo_dalooo_dadidooo and update"
 
 
 

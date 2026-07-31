@@ -12,7 +12,7 @@ for i in $(seq 1 60); do
 	if nmcli con show --active | grep -q "^$CONN_NAME"; then
 		break
 	fi
-	char="${chars[$i]}"  # 3 bytes per braille char
+	char="${chars[$i]}"  
 	printf "\r${char} Waiting for connection [$CONN_NAME]..."
 	sleep 0.2
 done
@@ -26,7 +26,7 @@ for i in $(seq 1 60); do
 	if ping -c 1 -W 0.5 "$MAINPI_HOST" &>/dev/null; then
 		break
 	fi
-	char="${chars[$i]}"  # 3 bytes per braille char
+	char="${chars[$i]}" 
 	printf "\r${char} Waiting for host [$MAINPI_HOST] to be alive..."
 	sleep 0.2
 done
@@ -38,6 +38,8 @@ fi
 
 source tmux/common_functions.bash
 main_window_tmux "$SESSION_NAME" "framework"
+
+##TODO: we can make this prettier by making W2 in a for loop and defining a visualization machine and the main machine with variables and setting w3 to be the docker images. hopefully we can ditch (or at least simplify the ) docker in the future with proper packaging in the ppa
 
 # Example usage:
 W1=(
@@ -61,7 +63,8 @@ W2=(
 
 W3=(
 "ssh -t frederico@raspberrypi -X 'TERM=xterm-256color /home/frederico/github/docker-opensimrt/pre_setup_run.sh'|Diagnostics"
-"sleep 5 && ./devel_run_docker_image.sh|Local Framework"
+"sleep 1 && ssh -t frederico@raspberrypi -X 'TERM=xterm-256color /home/frederico/github/docker-opensimrt/devel_instance.sh'|Raspberry Docker"
+"./devel_run_docker_image.sh|Local Framework"
 )
 
 create_tmux_window "$SESSION_NAME" "hosts" "${W2[@]}"
