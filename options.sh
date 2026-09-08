@@ -28,9 +28,9 @@ USE_NVIDIA=true
 USERNAME=rosopensimrt
 ## I don't want to spend my time debugging how to use pulse audio cookies anymore...
 USER_ID_THAT_WAS_USED_TO_BUILD_THIS_DOCKER=$(id -u)
-USER_GID_THAT_WAS_USED_TO_BUILD_THIS_DOCKER=$(id -u)
+USER_GID_THAT_WAS_USED_TO_BUILD_THIS_DOCKER=$(id -g)
 COMPLETE_BUILD=false
-SUFFIX=_complete
+SUFFIX=_ppa
 
 USE_REALSENSE=true
 
@@ -164,5 +164,9 @@ fi
 #DOCKER_IMAGE_NAME=rosopensimrt/opensim-rt:devel-all
 DOCKER_IMAGE_NAME=${USERNAME}/opensim-rt${SUFFIX}:$BRANCH 
 
+## nfs share that has the models
 EXTRA_OPTIONS=${EXTRA_OPTIONS}" -v /home/${USER}/shared/osim:/srv/shared "
+
+## we want to log chrony time shift as well
+EXTRA_OPTIONS=${EXTRA_OPTIONS}" -v /var/log/chrony:/var/log/chrony:ro --group-add $(getent group _chrony | cut -d: -f3) "
 

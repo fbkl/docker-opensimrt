@@ -2,8 +2,8 @@
 set -e
 
 ## I should get this from options//
-DOCKER_USER_NAME=rosopensimrt
-DOCKER_UID=908
+#DOCKER_USER_NAME=rosopensimrt
+#DOCKER_UID=908
 
 #mkdir -p -m 0700 /var/run/dbus && chown $DOCKER_USER_NAME:$DOCKER_USER_NAME /var/run/dbus
 
@@ -46,7 +46,7 @@ fi
 
 ACTUAL_USER_ID=$OUTSIDEY_USER_ID
 if [ "$IS_ROOTLESS" = "true" ]; then
-	OUTSIDEY_USER_ID=root
+       OUTSIDEY_USER_ID=root
 fi
 
 ## this will maybe prevent apps outside to work :(
@@ -63,30 +63,30 @@ export ROS_MASTER_URI=http://raspberrypi:11311
 
 cleanup()
 {
-	log_info "attempting cleanup"
+       log_info "attempting cleanup"
 
-	for DIRECTORY in ${dirs_to_share[@]}; do
-		if [ -d "$DIRECTORY" ]; then
-  			log_debug "$DIRECTORY exists so i am changing its permissions."
-			chown -R --from=$DOCKER_USER_NAME:$DOCKER_USER_NAME  $OUTSIDEY_USER_ID:$OUTSIDEY_USER_ID $DIRECTORY
-		fi
-	done
-	log_debug "permissions reset to $ACTUAL_USER_ID! "
+       for DIRECTORY in ${dirs_to_share[@]}; do
+               if [ -d "$DIRECTORY" ]; then
+                       log_debug "$DIRECTORY exists so i am changing its permissions."
+                       chown -R --from=$DOCKER_USER_NAME:$DOCKER_USER_NAME  $OUTSIDEY_USER_ID:$OUTSIDEY_USER_ID $DIRECTORY
+               fi
+       done
+       log_debug "permissions reset to $ACTUAL_USER_ID! "
 }
 
 trap "cleanup" INT EXIT
 
 for DIRECTORY in ${dirs_to_share[@]}; do
-		if [ -d "$DIRECTORY" ]; then
-  			log_debug "$DIRECTORY exists so i am changing its permissions."
-			chown -R --from=$OUTSIDEY_USER_ID:$OUTSIDEY_USER_ID  $DOCKER_USER_NAME:$DOCKER_USER_NAME $DIRECTORY
-		fi
-	done
+               if [ -d "$DIRECTORY" ]; then
+                       log_debug "$DIRECTORY exists so i am changing its permissions."
+                       chown -R --from=$OUTSIDEY_USER_ID:$OUTSIDEY_USER_ID  $DOCKER_USER_NAME:$DOCKER_USER_NAME $DIRECTORY
+               fi
+       done
 
 
-## Running passed command
+# Running passed command
 if [[ "$1" ]]; then
-	gosu $DOCKER_USER_NAME "$@"
+	exec gosu $DOCKER_USER_NAME "$@"
 fi
 
-
+#exec "$@"

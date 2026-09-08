@@ -1,16 +1,23 @@
 ARG start_with_image=ros:noetic-ros-base 
 ARG IS_ROOTLESS=false
-FROM rosopensimrt/osrt-full:devel-all AS stage1
+FROM $start_with_image AS stage1
+#FROM rosopensimrt/osrt-full:devel-all AS stage1
 ARG IS_ROOTLESS
 ENV IS_ROOTLESS=${IS_ROOTLESS}
 
 ENV DEBIAN_FRONTEND=noninteractive
 
+# `chrony` in the list below is there for chronyc, the CLIENT: diagnostics_schema's
+# CheckLocalChrony shells out to `chronyc tracking`. The container runs --network
+# host, so chronyc here reaches the host's chronyd on 127.0.0.1:323 and reports the
+# clock the container actually runs on, which is the one we care about. chronyd is
+# never started in here -- there is no init, and a second chronyd would be wrong.
 RUN apt-get update && apt-get install \
 	alsa-utils \
     	bindfs \
 	build-essential \
 	catkin-lint \
+	chrony \
 	cmake \
 	curl \
 	doxygen \
@@ -118,8 +125,8 @@ RUN wget https://bootstrap.pypa.io/pip/3.8/get-pip.py && python3 get-pip.py && p
 #&& cd /catkin_opensim/src/$OPENSIMRTDIR 
 #&& git checkout d5efbb262bf14b20facf292d9d9fb886f6ac7e3b && cd ..
 #RUN sed 's@~@/opt@' ./$OPENSIMRTDIR/.github/workflows/env_variables >> /etc/profile.d/opensim_envs.sh
-ADD scripts/realsense_install.bash /usr/sbin/
-RUN bash /usr/sbin/realsense_install.bash
+#ADD scripts/realsense_install.bash /usr/sbin/
+#RUN bash /usr/sbin/realsense_install.bash
 
 #RUN echo "I use this to make it get stuff from git again"
 
@@ -128,11 +135,14 @@ RUN bash /usr/sbin/realsense_install.bash
 ENV PYTHONPATH=/opt/ros/noetic/lib/python3/dist-packages/:$PYTHONPATH
 
 #I dont think this variable is set yet
-ENV OPENSIM_PYTHON_DIR=/usr/local/lib/python3.8/site-packages
+
+#TODO: NO PYTHON SUPPORT for opensim FOR NOW
+ENV OPENSIM_PYTHON_DIR=/usr/lib/python3.8/site-packages
 WORKDIR ${OPENSIM_PYTHON_DIR}
 RUN python3.8 setup.py install
-WORKDIR /usr/lib/x86_64-linux-gnu
-RUN ln -s libpython3.8.so.1.0 libpython3.6m.so.1.0
+#WORKDIR /usr/lib/x86_64-linux-gnu
+#RUN ln -s libpython3.8.so.1.0 libpython3.6m.so.1.0
+
 ## fixing bug in view_frames
 RUN sed -i "s/\(subprocess.Popen([^)]*\)/\1,universal_newlines=True/" /opt/ros/noetic/lib/tf/view_frames 
 
@@ -237,12 +247,13 @@ RUN rosdep update
 
 USER root
 
-RUN apt update && apt install clangd-18 clang-tidy-18 -y
+RUN apt update && apt install clangd-18 clang-tidy-18 libspdlog-dev libspdlog1 -y
 
 RUN     update-alternatives --install /usr/bin/clangd 		clangd 		/usr/bin/clangd-18 	10 && \
 	update-alternatives --install /usr/bin/clang-tidy 	clang-tidy 	/usr/bin/clang-tidy-18  10
 
 WORKDIR /catkin_ws
 ##maybe  apt install qt5-default --fix-missing
-
+RUN apt install libtinyxml2-dev
+USER ${uid}
 ENTRYPOINT [ "entrypoint.sh" ]
