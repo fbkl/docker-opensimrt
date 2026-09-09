@@ -2,7 +2,7 @@
 set -e
 
 ## I should get this from options//
-#DOCKER_USER_NAME=rosopensimrt
+DOCKER_USER_NAME=rosopensimrt
 #DOCKER_UID=908
 
 #mkdir -p -m 0700 /var/run/dbus && chown $DOCKER_USER_NAME:$DOCKER_USER_NAME /var/run/dbus
@@ -86,7 +86,7 @@ for DIRECTORY in ${dirs_to_share[@]}; do
 
 # Running passed command
 if [[ "$1" ]]; then
-	exec gosu $DOCKER_USER_NAME "$@"
+	gosu $DOCKER_USER_NAME "$@"
 fi
 
 #exec "$@"

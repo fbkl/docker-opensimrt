@@ -198,7 +198,6 @@ RUN set -eux; \
 
 ADD scripts/log_defs.bash /usr/local/bin
 
-ADD scripts/entrypoint.sh /bin/entrypoint.sh 
 
 # Set user and group
 ARG user=osruser1
@@ -255,5 +254,6 @@ RUN     update-alternatives --install /usr/bin/clangd 		clangd 		/usr/bin/clangd
 WORKDIR /catkin_ws
 ##maybe  apt install qt5-default --fix-missing
 RUN apt install libtinyxml2-dev
-USER ${uid}
+ADD scripts/entrypoint.sh /bin/entrypoint.sh 
+#USER ${uid}
 ENTRYPOINT [ "entrypoint.sh" ]

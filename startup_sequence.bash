@@ -36,6 +36,12 @@ if ! ping -c 1 -W 2 "$MAINPI_HOST" &>/dev/null; then
 	exit 1
 fi
 
+# checks time convergence for chrony
+#for m in "${machines[@]}"; do
+#      ssh "$m" 'chronyc waitsync 12 0.05 0 5' >/dev/null || { echo "ERROR: $m clock not converged" >&2; exit 1; }
+#done
+
+
 source tmux/common_functions.bash
 main_window_tmux "$SESSION_NAME" "framework"
 
