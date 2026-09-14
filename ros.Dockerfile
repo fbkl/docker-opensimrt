@@ -1,16 +1,23 @@
 ARG start_with_image=ros:noetic-ros-base 
 ARG IS_ROOTLESS=false
-FROM ${start_with_image} AS stage1
+FROM $start_with_image AS stage1
+#FROM rosopensimrt/osrt-full:devel-all AS stage1
 ARG IS_ROOTLESS
 ENV IS_ROOTLESS=${IS_ROOTLESS}
 
 ENV DEBIAN_FRONTEND=noninteractive
 
+# `chrony` in the list below is there for chronyc, the CLIENT: diagnostics_schema's
+# CheckLocalChrony shells out to `chronyc tracking`. The container runs --network
+# host, so chronyc here reaches the host's chronyd on 127.0.0.1:323 and reports the
+# clock the container actually runs on, which is the one we care about. chronyd is
+# never started in here -- there is no init, and a second chronyd would be wrong.
 RUN apt-get update && apt-get install \
 	alsa-utils \
     	bindfs \
 	build-essential \
 	catkin-lint \
+	chrony \
 	cmake \
 	curl \
 	doxygen \
@@ -88,8 +95,8 @@ RUN git clone https://github.com/mysablehats/OpenSimRT_data.git /srv/data && cd 
 
 FROM stage1 AS stage2
 
-ADD scripts/ximu.bash /bin
-RUN /bin/ximu.bash
+#ADD scripts/ximu.bash /bin
+#RUN /bin/ximu.bash
 
 #FROM ros:noetic-ros-base AS build-env2
 
@@ -115,24 +122,29 @@ RUN wget https://bootstrap.pypa.io/pip/3.8/get-pip.py && python3 get-pip.py && p
 
 #half way into removing those hardcoded paths. still hardcoded, but a bit better
 
+#ADD cmake/Findsimbody.cmake /opt/dependencies
+#ADD cmake/FindOpenSim.cmake /opt/dependencies
+#&& cd /catkin_opensim/src/$OPENSIMRTDIR 
+#&& git checkout d5efbb262bf14b20facf292d9d9fb886f6ac7e3b && cd ..
+#RUN sed 's@~@/opt@' ./$OPENSIMRTDIR/.github/workflows/env_variables >> /etc/profile.d/opensim_envs.sh
+#ADD scripts/realsense_install.bash /usr/sbin/
+#RUN bash /usr/sbin/realsense_install.bash
 
-
-WORKDIR /catkin_opensim/src
-RUN git clone https://github.com/opensimrt-ros/opensimrt_msgs.git -b devel && cd opensimrt_msgs && git checkout 182dd0a73a3d8a822c8112eab03879490edee09a && cd ..
 #RUN echo "I use this to make it get stuff from git again"
 
-WORKDIR /catkin_opensim/src
-RUN git clone https://github.com/fbkl/opensimrt_bridge.git -b feature/no_simtk_namespacing && echo "." 
 #devel && cd opensimrt_bridge && git checkout 96d388fdfcc538e7be30bb8680fec316b4b594bf && cd ..
 
 ENV PYTHONPATH=/opt/ros/noetic/lib/python3/dist-packages/:$PYTHONPATH
 
 #I dont think this variable is set yet
-ENV OPENSIM_PYTHON_DIR=/usr/local/lib/python3.8/site-packages
+
+#TODO: NO PYTHON SUPPORT for opensim FOR NOW
+ENV OPENSIM_PYTHON_DIR=/usr/lib/python3.8/site-packages
 WORKDIR ${OPENSIM_PYTHON_DIR}
 RUN python3.8 setup.py install
-WORKDIR /usr/lib/x86_64-linux-gnu
-RUN ln -s libpython3.8.so.1.0 libpython3.6m.so.1.0
+#WORKDIR /usr/lib/x86_64-linux-gnu
+#RUN ln -s libpython3.8.so.1.0 libpython3.6m.so.1.0
+
 ## fixing bug in view_frames
 RUN sed -i "s/\(subprocess.Popen([^)]*\)/\1,universal_newlines=True/" /opt/ros/noetic/lib/tf/view_frames 
 
@@ -144,24 +156,10 @@ ADD scripts/build_opensimrt.bash /bin/catkin_build_opensimrt.bash
 ADD scripts/build_catkin_ws.bash /bin/catkin_build_ws.bash
 ADD scripts/build_opensimrt.bash /bin/catkin_build_opensimrt.bash
 
-WORKDIR /catkin_opensim/src
-
-################## TODO: ATTENTION WE NEED TO UPDATE THIS TOOOOOOOO:
-ENV OPENSIMRTDIR=opensimrt_core
-#RUN git clone https://github.com/opensimrt-ros/opensimrt_core.git ./$OPENSIMRTDIR -b aarch64  && ln -s /srv/data $OPENSIMRTDIR/data && cd /catkin_opensim/src/$OPENSIMRTDIR && git checkout 95f62e7c8a9608f43c8aad71dacb9d567b5afa7a && cd ..
-#RUN sed 's@~@/opt@' ./$OPENSIMRTDIR/.github/workflows/env_variables >> /etc/profile.d/opensim_envs.sh
-
-RUN git clone https://github.com/fbkl/opensimrt_core.git -b feature/re_adds_contact_forces #&& echo "redo_doodaloo_dalooo"
-
-
-
 ###############################################################################################################################################################################################################################################
 FROM stage2 AS stage3
 #WORKDIR /catkin_opensim/src/opensimrt_core
 #RUN git pull
-WORKDIR /catkin_opensim
-#RUN . /opt/ros/noetic/setup.sh && . /etc/profile.d/opensim_envs.sh && catkin_make ## it's not a session, so it wont load the exports...
-RUN /bin/catkin_build_opensimrt.bash
 
 FROM stage3 AS final
 
@@ -206,7 +204,6 @@ RUN set -eux; \
 
 ADD scripts/log_defs.bash /usr/local/bin
 
-ADD scripts/entrypoint.sh /bin/entrypoint.sh 
 
 # Set user and group
 ARG user=osruser1
@@ -228,7 +225,6 @@ RUN useradd -l -u ${uid} -g ${gid} -G sudo,audio,video,input,$INPUTGROUP -s /bin
 
 # Switch to user
 
-RUN chown ${uid}:${gid} -R /catkin_opensim
 
 
 #RUN echo "reinstall neovim"
@@ -262,7 +258,7 @@ RUN rosdep update
 
 USER root
 
-RUN apt update && apt install clangd-18 clang-tidy-18 -y
+RUN apt update && apt install clangd-18 clang-tidy-18 libspdlog-dev libspdlog1 -y
 
 RUN     update-alternatives --install /usr/bin/clangd 		clangd 		/usr/bin/clangd-18 	10 && \
 	update-alternatives --install /usr/bin/clang-tidy 	clang-tidy 	/usr/bin/clang-tidy-18  10
@@ -271,5 +267,7 @@ WORKDIR /catkin_ws
 ADD scripts/rasppi.sh /bin/setup_raspi.sh
 RUN /bin/setup_raspi.sh
 ##maybe  apt install qt5-default --fix-missing
-
+RUN apt install libtinyxml2-dev
+ADD scripts/entrypoint.sh /bin/entrypoint.sh 
+#USER ${uid}
 ENTRYPOINT [ "entrypoint.sh" ]

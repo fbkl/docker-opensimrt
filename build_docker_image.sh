@@ -66,10 +66,14 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
 
 	if [ "$COMPLETE_BUILD" = true ]; then
 
+		echo "SETTING COMPLETE BUILD"
 		START_WITH_IMAGE=${USERNAME}/osrt-full-$ARCH:$BRANCH 
 		#START_WITH_IMAGE=${USERNAME}/osrt-full:latest 
 	else
-		START_WITH_IMAGE=${USERNAME}/osrt-$ARCH:$BRANCH
+		echo "SETTING PARTIAL BUILD PPA"
+		#START_WITH_IMAGE=${USERNAME}/osrt-$ARCH:$BRANCH
+		#START_WITH_IMAGE=${USERNAME}/osrt:$BRANCH
+		START_WITH_IMAGE=${USERNAME}/osrt-$ARCH:ppa
 	fi
 	COMMON_OPTIONS=""
 	if [ "$BUILDX" = 1 ]; then
@@ -79,7 +83,7 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
 			--build-arg user=$USERNAME \
 			--build-arg group=$USERNAME \
 			--build-arg uid=${USER_ID_THAT_WAS_USED_TO_BUILD_THIS_DOCKER} \
-			--build-arg gid=${USER_ID_THAT_WAS_USED_TO_BUILD_THIS_DOCKER} \
+			--build-arg gid=${USER_GID_THAT_WAS_USED_TO_BUILD_THIS_DOCKER} \
 			--build-arg IS_ROOTLESS=$IS_ROOTLESS \
 			--build-arg USE_N_CORES=$USE_N_CORES \
 			$@

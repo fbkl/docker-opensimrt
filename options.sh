@@ -35,12 +35,19 @@ INPUTGROUP=$(getent group input | cut -d: -f3)
 #echo $INPUTGROUP
 #exit
 
-COMPLETE_BUILD=true
-SUFFIX=_complete
+#COMPLETE_BUILD=true
+COMPLETE_BUILD=false
+#SUFFIX=_complete
+SUFFIX=_ppa
 
 USE_RASPPI=true
 USE_REALSENSE=false
 USE_N_CORES=$(nproc)
+
+USE_REALSENSE=true
+
+USE_HOST_SSHOPTS=true
+
 BUILDX=1
 ####SETUP
 
@@ -63,7 +70,7 @@ log_debug IS_ROOTLESS=$IS_ROOTLESS
 
 USER_UID=$(id -u)
 
-EXTRA_OPTIONS="--ipc host "
+EXTRA_OPTIONS="--ipc host -e ROSLAUNCH_SSH_UNKNOWN=1 "
 
 	if [ "$USE_ANDROID_VM" = true ]; then #bash is weird...
 		#let's also run the vm for the android device
@@ -190,6 +197,14 @@ EXTRA_OPTIONS="--ipc host "
 
 		EXTRA_OPTIONS=${EXTRA_OPTIONS}"--runtime=nvidia "
 	fi
+	if [ "$USE_HOST_SSHOPTS" = true ]; then
+
+		EXTRA_OPTIONS=${EXTRA_OPTIONS}"-v /home/$USER/.ssh:/home/$USERNAME/.ssh "
+	else
+		EXTRA_OPTIONS=${EXTRA_OPTIONS}"-v $(pwd)/.ssh:/home/$USERNAME/.ssh "
+		EXTRA_OPTIONS=${EXTRA_OPTIONS}"-e ROSLAUNCH_SSH_UNKNOWN=1 " 
+
+	fi
 
 BRANCH_RAW=$(git rev-parse --abbrev-ref HEAD )
 
@@ -209,5 +224,11 @@ fi
 DOCKER_IMAGE_NAME=${USERNAME}/opensim-rt${SUFFIX}-$ARCH:$BRANCH 
 
 
-EXTRA_OPTIONS=${EXTRA_OPTIONS}" -v /home/${USER}/.ssh/:/home/${USERNAME}/.ssh -v /mnt/osim:/srv/shared "
+EXTRA_OPTIONS=${EXTRA_OPTIONS}" -v /mnt/osim:/srv/shared "
+
+## nfs share that has the models
+#EXTRA_OPTIONS=${EXTRA_OPTIONS}" -v /home/${USER}/shared/osim:/srv/shared "
+
+## we want to log chrony time shift as well
+EXTRA_OPTIONS=${EXTRA_OPTIONS}" -v /var/log/chrony:/var/log/chrony:ro --group-add $(getent group _chrony | cut -d: -f3) "
 

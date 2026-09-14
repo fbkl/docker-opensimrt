@@ -15,3 +15,14 @@
 [submodule "vim"]
 	path = vim
 	url = git@github.com:fbkl/vim.git
+[submodule "catkin_ws/src/opensimrt_msgs"]
+	path = catkin_ws/src/opensimrt_msgs
+	url = https://github.com/opensimrt-ros/opensimrt_msgs.git
+[submodule "catkin_ws/src/opensimrt_bridge"]
+	path = catkin_ws/src/opensimrt_bridge
+	url = https://github.com/fbkl/opensimrt_bridge.git
+	pushurl = git@github.com:fbkl/opensimrt_bridge.git
+[submodule "catkin_ws/src/opensimrt_core"]
+	path = catkin_ws/src/opensimrt_core
+	url = https://github.com/fbkl/opensimrt_core.git
+	pushurl = git@github.com:fbkl/opensimrt_core.git
