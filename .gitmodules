@@ -26,3 +26,6 @@
 	path = catkin_ws/src/opensimrt_core
 	url = https://github.com/fbkl/opensimrt_core.git
 	pushurl = git@github.com:fbkl/opensimrt_core.git
+[submodule "catkin_devel/src/vicon_rviz_markers"]
+	path = catkin_devel/src/vicon_rviz_markers
+	url = git@github.com:fbkl/vicon_rviz_markers.git
